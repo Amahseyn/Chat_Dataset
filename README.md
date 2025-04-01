@@ -9,6 +9,9 @@ A local-only property search system using semantic similarity.
 
 ## Setup
 1. Clone repo
-2. Install requirements:
+2. Install requirements and run code:
 ```bash
 pip install -r requirements.txt
+
+python preprocess.ipynb
+python search.ipynb
