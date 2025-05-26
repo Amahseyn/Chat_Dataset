@@ -29,3 +29,5 @@ class Property(Base):
     unclassify_amenity_count = Column(Integer)
     division = Column(String)
     zone = Column(String)
+
+
