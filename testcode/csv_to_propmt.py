@@ -7,7 +7,7 @@ import os
 # --- Configuration ---
 CSV_FILE_PATH = 'app/data/data.csv' # IMPORTANT: Make sure this path is correct
 GOOGLE_API_KEY = 'AIzaSyAK6PS-eVxAQDz7ELB0SEJS2VbF6DzrIHk'
-SAMPLE_SIZE = 1
+SAMPLE_SIZE = 3
 TOP_K_RESULTS = 3 # Number of relevant documents to retrieve for context
 print("Google API Key:", GOOGLE_API_KEY) # For debugging, ensure this is set
 # --- Initialize Google Generative AI ---
