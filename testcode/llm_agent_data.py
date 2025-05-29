@@ -5,8 +5,8 @@ from langchain.vectorstores import FAISS # Or Chroma, etc.
 import os
 
 # --- Configuration ---
-CSV_FILE_PATH = 'app/data/data.csv' # IMPORTANT: Make sure this path is correct
-GOOGLE_API_KEY = 'AIzaSyAK6PS-eVxAQDz7ELB0SEJS2VbF6DzrIHk'
+file_path = 'app/data/data.csv' # IMPORTANT: Make sure this path is correct
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") # Ensure this environment variable is set
 SAMPLE_SIZE = 3
 TOP_K_RESULTS = 3 # Number of relevant documents to retrieve for context
 print("Google API Key:", GOOGLE_API_KEY) # For debugging, ensure this is set
@@ -21,6 +21,22 @@ embeddings_model = GoogleGenerativeAIEmbeddings(model="models/embedding-001", go
 # Model for generation and inference
 generative_model = genai.GenerativeModel('gemini-1.5-flash')
 
+def load_dataframe(file_path):
+    """Loads a DataFrame from CSV, Excel, or JSON based on file extension."""
+    ext = os.path.splitext(file_path)[-1].lower()
+    try:
+        if ext in ['.csv']:
+            return pd.read_csv(file_path)
+        elif ext in ['.xlsx', '.xls']:
+            return pd.read_excel(file_path)
+        elif ext in ['.json']:
+            return pd.read_json(file_path)
+        else:
+            print(f"Unsupported file extension: {ext}")
+            return None
+    except Exception as e:
+        print(f"Error loading file '{file_path}': {e}")
+        return None
 
 def infer_dataset_domain(df_sample, model):
     """Infers the domain of the dataset using an LLM."""
@@ -39,7 +55,7 @@ def infer_dataset_domain(df_sample, model):
 
     column_names = ", ".join([col.replace('_', ' ').title() for col in df_sample.columns])
 
-    prompt = f"""Analyze the following CSV column names and a sample of the data to determine the primary subject or domain.
+    prompt = f"""Analyze the following column names and a sample of the data to determine the primary subject or domain.
 Provide a concise label for this domain (e.g., "Real Estate Properties", "E-commerce Product Listings", "Customer Service Interactions", "Book Inventory", "Vehicle Sales Data").
 
 Column Names:
@@ -143,18 +159,14 @@ def generate_dynamic_agent_response(user_query, vector_store, inferred_domain, l
 
 # --- Main Workflow ---
 def main():
-    # 1. Load CSV
-    try:
-        df = pd.read_csv(CSV_FILE_PATH)
-    except FileNotFoundError:
-        print(f"Error: '{CSV_FILE_PATH}' not found. Please check the file path.")
-        return
-    except Exception as e:
-        print(f"Error loading CSV: {e}")
+    # 1. Load Data (CSV, Excel, or JSON)
+    df = load_dataframe(file_path)
+    if df is None:
+        print(f"Error: Could not load data from '{file_path}'. Please check the file and format.")
         return
 
     if df.empty:
-        print(f"Error: The CSV file '{CSV_FILE_PATH}' is empty.")
+        print(f"Error: The file '{file_path}' is empty.")
         return
 
     # 2. Take a small sample
