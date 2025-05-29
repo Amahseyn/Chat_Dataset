@@ -7,7 +7,6 @@ import torch
 from transformers import BitsAndBytesConfig
 
 import os
-os.environ["HF_TOKEN"] = "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"
 
 
 try:
